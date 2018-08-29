@@ -1,0 +1,51 @@
+  1 #include<stdio.h>
+  2 #include<fcntl.h>
+  3 #include<string.h>
+  4 #include<unistd.h>
+  5 #include<stdlib.h>
+  6
+  7 int ledControl(int gpio)
+  8 {
+  9     int fd;
+ 10     char buf[BUFSIZ];
+ 11
+ 12     fd = open("/sys/class/gpio/export", O_WRONLY);
+ 13     sprintf(buf, "%d", gpio);
+ 14     write(fd, buf, strlen(buf));
+ 15     close(fd);
+ 16
+ 17     sprintf(buf, "/sys/class/gpio%d/direction", gpio);
+ 18     fd = open(buf, O_WRONLY);
+ 19     write(fd, "out", 4);
+ 20     close(fd);
+ 21
+ 22     sprintf(buf, "/sys/class/gpio/gpio%d/value", gpio);
+ 23     fd = open(buf, O_WRONLY);
+ 24     write(fd, "1", 2);
+ 25     close(fd);
+ 26
+ 27     getchar();
+ 28
+ 29     fd = open("/sys/class/gpio/unexport", O_WRONLY);
+ 30     sprintf(buf, "%d", gpio);
+ 31     write(fd, buf, strlen(buf));
+ 32     close(fd);
+ 33
+ 34     return 0;
+ 35 }
+ 36
+ 37 int main(int argc, char** argv)
+ 38 {
+ 39     int gno;
+ 40
+ 41     if(argc < 2)
+ 42     {
+ 43         printf("Usage : %s GPIO_NO\n", argv[0]);
+ 44         return -1;
+ 45     }
+ 46     gno = atoi(argv[1]);
+ 47
+ 48     ledControl(gno);
+ 49
+ 50     return 1;
+ 51 }
