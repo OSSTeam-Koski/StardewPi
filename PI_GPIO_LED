@@ -1,0 +1,83 @@
+ 1 #include<stdio.h>
+  2 #include<stdlib.h>
+  3 #include<string.h>
+  4 #include<unistd.h>
+  5 #include<fcntl.h>
+  6
+  7 int LED(int gpio);
+  8 int ON_LED(int gpio);
+  9 int OFF_LED(int gpio);
+ 10
+ 11 int main(int argc, char **argv)
+ 12 {
+ 13     if(argc < 2)
+ 14     {
+ 15         printf("Not Found GPIO_PIN_NUMBER : %d\n", argv[0]);
+ 16         return -1;
+ 17     }
+ 18     int gno;
+ 19
+ 20     gno = atoi(argv[1]);
+ 21
+ 22     LED(gno);
+ 23
+ 24     return 1;
+ 25 }
+ 26
+ 27 int ON_LED(int gpio)
+ 28 {
+ 29     int fd;
+ 30     char buf[BUFSIZ];
+ 31
+ 32     fd = open("/sys/class/gpio/export", O_WRONLY);
+ 33     sprintf(buf, "%d", gpio);
+ 34     write(fd, buf, 3);
+ 35     close(fd);
+ 36
+ 37     sprintf(buf, "/sys/class/gpio/gpio%d/direction", gpio);
+ 38     fd = open(buf, O_WRONLY);
+ 39     write(fd, "out", 4);
+ 40     close(fd);
+ 41
+ 42     sprintf(buf, "/sys/class/gpio/gpio%d/value", gpio);
+ 43     fd = open(buf, O_WRONLY);
+ 44     write(fd, "1", 2);
+ 45     close(fd);
+ 46
+ 47     ON_LED(gpio);
+ 48
+ 49     return 1;
+ 50 }
+ 51
+ 52 int OFF_LED(int gpio)
+ 53 {
+ 54     int fd;
+ 55     char buf[BUFSIZ];
+ 56
+ 57     fd = open("/sys/class/gpio/unexport", O_WRONLY);
+ 58     sprintf(buf, "%d", gpio);
+ 59     write(fd, buf, 3);
+ 60     close(fd);
+ 61
+ 62     return 1;
+ 63 }
+ 64
+ 65 int LED(int gpio)
+ 66 {
+ 67     int fd;
+ 68     char buf[BUFSIZ];
+ 69     char pin[7];
+ 70     char value;
+ 71
+ 72     sprintf(buf, "/sys/class/gpio/gpio%d/value", gpio);
+ 73     fd = open(buf, O_RDONLY);
+ 74     read(fd, &value, 1);
+ 75     close(fd);
+ 76
+ 77     if(value == '1')
+ 78         OFF_LED(gpio);
+ 79     else
+ 80         ON_LED(gpio);
+ 81
+ 82     return 0;
+ 83 }
