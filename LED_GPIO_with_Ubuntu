@@ -1,0 +1,25 @@
+#define FCPU 16000000lu
+
+#include<avr/io.h>
+#include<util/delay.h>
+
+#define PORT PORTD
+#define DDR DDRD
+
+int main(void)
+{
+  DDR = 0xE0; //PD 5, 6, 7 -> OUTPUT
+  PORT = 0x00;  //PD 5, 6, 7 -> RESET
+  while(1)
+  {
+    PORT |= 0x20;
+    _delay_ms(1000);
+    PORT |= 0x40;
+    _delay_ms(1000);
+    PORT |= 0x80;
+    _delay_ms(1000);
+    PORT &= 0x00;
+    _delay_ms(1000);
+   }
+   return 1;
+ }
